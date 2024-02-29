@@ -30,7 +30,8 @@ class Logic:
         return not (from_row < 0 or from_col < 0 or to_row < 0 or to_col < 0 or # cannot go out of bounds
            from_row >= self.height or to_row >= self.height or from_col >= self.width or to_col >= self.width or # cannot go out of bounds
            self.board[from_row][from_col] >= self.num_goal or self.board[to_row][to_col] >= self.num_goal or # cannot already have reached the goal
-           abs(from_row - to_row) != 1 or abs(from_col - to_col) != 1 or # has to be adjacent tiles
+           abs(from_row - to_row) != 1 or abs(from_col - to_col) != 1 or # other tile has to be within a 3x3 tile radius centered on one of the tiles
+           (abs(from_row - to_row) + abs(from_col - to_col) == 2) or # cannot be diagonal tiles
            self.board[from_row][from_col] + self.board[to_row][to_col] > self.num_goal) # sum has to be under or equal to the goal
     
     def try_move_num(self, from_row, from_col, to_row, to_col):
@@ -44,9 +45,12 @@ class Logic:
         # add score
         SCORE_GOAL_MULTIPLIER = 10
         if(self.board[to_row][to_col] == self.num_goal):
-            score += SCORE_GOAL_MULTIPLIER * self.num_goal
+            self.score += SCORE_GOAL_MULTIPLIER * self.num_goal
         else:
-            score += self.board[to_row][to_col]
+            self.score += self.board[to_row][to_col]
+
+        self.apply_gravity_and_num()
+        return True
         
     def apply_gravity_and_num(self):
         # moves all the tiles above the empty space down 1, then add a new num to the top of the board
@@ -80,3 +84,4 @@ class Logic:
 
         return to_return
         
+    
