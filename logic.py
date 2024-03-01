@@ -27,12 +27,16 @@ class Logic:
 
     def is_valid_move(self, from_row, from_col, to_row, to_col):
         # Checks for valid moves
-        return not (from_row < 0 or from_col < 0 or to_row < 0 or to_col < 0 or # cannot go out of bounds
-           from_row >= self.height or to_row >= self.height or from_col >= self.width or to_col >= self.width or # cannot go out of bounds
-           self.board[from_row][from_col] >= self.num_goal or self.board[to_row][to_col] >= self.num_goal or # cannot already have reached the goal
-           abs(from_row - to_row) != 1 or abs(from_col - to_col) != 1 or # other tile has to be within a 3x3 tile radius centered on one of the tiles
-           (abs(from_row - to_row) + abs(from_col - to_col) == 2) or # cannot be diagonal tiles
-           self.board[from_row][from_col] + self.board[to_row][to_col] > self.num_goal) # sum has to be under or equal to the goal
+        try:
+            inside_bounds = from_row >= 0 and from_col >= 0 and to_row >= 0 or to_col >= 0 and from_row < self.height and to_row < self.width and from_col < self.width
+            not_at_goal = self.board[from_row][from_col] < self.num_goal and self.board[to_row][to_col] < self.num_goal
+            inside_3x3 = int(abs(from_row - to_row)) <= 1 and int(abs(from_col - to_col)) <= 1
+            not_diagonal = int(abs(from_row - to_row)) + int(abs(from_col - to_col)) != 2
+            sum_under_goal = self.board[from_row][from_col] + self.board[to_row][to_col] <= self.num_goal
+        except IndexError:
+            return False
+        
+        return inside_bounds and not_at_goal and inside_3x3 and not_diagonal and sum_under_goal
     
     def try_move_num(self, from_row, from_col, to_row, to_col):
         # moves the number to the target r,c , returns True if it was successful, false if otherwise
@@ -83,5 +87,15 @@ class Logic:
             to_return += "\n"
 
         return to_return
-        
     
+    def valid_moves_available(self):
+        # checks to see if there is any valid move left to be played (False -> game is over)
+        for row_i, row in enumerate(self.board):
+            for col_i, val in enumerate(row):
+                if(self.tile_has_valid_move(row_i, col_i)):
+                    return True
+                
+        return False
+
+    def tile_has_valid_move(self, row_i, col_i):
+        return self.is_valid_move(row_i, col_i, row_i - 1, col_i) or self.is_valid_move(row_i,col_i, row_i + 1, col_i) or self.is_valid_move(row_i,col_i, row_i, col_i - 1) or self.is_valid_move(row_i,col_i, row_i, col_i + 1)

@@ -1,9 +1,6 @@
-from logic import Logic
+from text_user_handler import TextUserHandler
 
 def main():
-    board = Logic()
-    print(board)
-    board.try_move_num(0,0,1,1)
-    print(board)
+    TextUserHandler()
 
 main()
