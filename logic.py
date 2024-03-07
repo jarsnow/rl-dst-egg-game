@@ -90,12 +90,15 @@ class Logic:
     
     def valid_moves_available(self):
         # checks to see if there is any valid move left to be played (False -> game is over)
-        for row_i, row in enumerate(self.board):
-            for col_i, val in enumerate(row):
-                if(self.tile_has_valid_move(row_i, col_i)):
-                    return True
-                
-        return False
+        return (self.count_tiles_with_valid_move() > 0)
 
     def tile_has_valid_move(self, row_i, col_i):
         return self.is_valid_move(row_i, col_i, row_i - 1, col_i) or self.is_valid_move(row_i,col_i, row_i + 1, col_i) or self.is_valid_move(row_i,col_i, row_i, col_i - 1) or self.is_valid_move(row_i,col_i, row_i, col_i + 1)
+    
+    def count_tiles_with_valid_move(self):
+        count = 0
+        for row_i, row in enumerate(self.board):
+            for col_i, val in enumerate(row):
+                if(self.tile_has_valid_move(row_i, col_i)):
+                    count += 1
+        return count

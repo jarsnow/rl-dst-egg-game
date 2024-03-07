@@ -1,8 +1,10 @@
 from text_user_handler import TextUserHandler
+from model_handler import ModelHandler
 from gui import GUI
 
 def main():
-    gui = GUI()
-    gui.run()
+    #t = TextUserHandler()
+    # gui = GUI().run()
+    mh = ModelHandler().run()
 
 main()
