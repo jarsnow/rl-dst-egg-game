@@ -5,6 +5,6 @@ from model_handler import ModelHandler
 def main():
     #t = TextUserHandler()
     # gui = GUI().run()
-    mh = ModelHandler().run()
+    mh = ModelHandler("random").run()
 
 main()

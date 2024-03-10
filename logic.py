@@ -101,5 +101,17 @@ class Logic:
         for row_i, row in enumerate(self.board):
             for col_i, val in enumerate(row):
                 if(self.tile_has_valid_move(row_i, col_i)):
+                    print(f"Valid move at {row_i}, {col_i}")
                     count += 1
         return count
+    
+    def get_valid_moves_as_tuples(self):
+        valid_moves = []
+        for from_row_i, from_row in enumerate(self.board):
+            for from_col_i, val in enumerate(from_row):
+                for to_row_i, to_row in enumerate(self.board):
+                    for to_col_i, val in enumerate(to_row):
+                        if(self.is_valid_move(from_row_i, from_col_i, to_row_i, to_col_i)):
+                            valid_move = (from_row_i, from_col_i, to_row_i, to_col_i)
+                            valid_moves.append(valid_move)
+        return valid_moves

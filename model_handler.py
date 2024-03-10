@@ -3,12 +3,12 @@ from random_input_ml import RandomInputModel
 
 class ModelHandler:
 
-    def __init__(self):
+    def __init__(self, model_choice):
         self.display_score = False
         self.display_moves = False
         self.display_turn = False
-        self.logic = self.make_board_with_input()
-        self.run()
+        self.model_choice = model_choice
+        self.logic = self.make_board()
 
     def make_board_with_input(self):
         # initializes board according to the user's config
@@ -29,10 +29,14 @@ class ModelHandler:
             num_goal = int(input("num_goal: "))
             return Logic(width ,height, num_min, num_max, num_goal)
         
+    def make_board(self):
+        return Logic()
+        
     def run(self):
+        # returns the final score of the model
         
         turn = 0
-        while self.logic.valid_moves_available():
+        while True:
             print("") # new line
             turn += 1
             # display info about the current status of the model
@@ -42,16 +46,21 @@ class ModelHandler:
                 print(f"Current Score - {self.logic.score}")
             if(self.display_moves):
                 print(f"Current Moves - {self.logic.count_tiles_with_valid_move()}")
-            
-            print(self.logic)
+                print(self.logic)
             
             # make a move based on the model
-            move = RandomInputModel.get_move(self.logic)
+            move = None
+            if(self.model_choice == "random"):
+                move = RandomInputModel.get_move(self.logic)
+
+            # end if there are no valid moves left
+            if(move == None):
+                break
 
             is_success = self.logic.try_move_num(move[0], move[1], move[2], move[3])
 
             if not is_success:
                 raise ValueError("something went wrong :(")
 
-        print(f"Model finished. Final Score: {self.logic.score}")
+        return self.logic.score
 

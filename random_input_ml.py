@@ -7,12 +7,10 @@ class RandomInputModel:
         width = len(logic_obj.board)
         height = len(logic_obj.board)
         
-        while True:
-            from_r_input = random.randint(0, height - 1)
-            from_c_input = random.randint(0, width - 1)
-            to_r_input = random.randint(0, height - 1)
-            to_c_input = random.randint(0, width - 1)
+        valid_moves = logic_obj.get_valid_moves_as_tuples()
 
-            if(logic_obj.is_valid_move(from_r_input, from_c_input, to_r_input, to_c_input)):
-                move = [from_r_input, from_c_input, to_r_input, to_c_input]
-                return move
+        # return None if there are no valid moves left
+        if(len(valid_moves) == 0):
+            return None
+        
+        return random.choice(valid_moves)
