@@ -33,10 +33,11 @@ class Logic:
             inside_3x3 = int(abs(from_row - to_row)) <= 1 and int(abs(from_col - to_col)) <= 1
             not_diagonal = int(abs(from_row - to_row)) + int(abs(from_col - to_col)) != 2
             sum_under_goal = self.board[from_row][from_col] + self.board[to_row][to_col] <= self.num_goal
+            is_diff_tile = not ((from_row == to_row) and (from_col == to_col))
         except IndexError:
             return False
         
-        return inside_bounds and not_at_goal and inside_3x3 and not_diagonal and sum_under_goal
+        return inside_bounds and not_at_goal and inside_3x3 and not_diagonal and sum_under_goal and is_diff_tile
     
     def try_move_num(self, from_row, from_col, to_row, to_col):
         # moves the number to the target r,c , returns True if it was successful, false if otherwise

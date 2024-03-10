@@ -1,6 +1,6 @@
 from text_user_handler import TextUserHandler
 from model_handler import ModelHandler
-from gui import GUI
+# from gui import GUI
 
 def main():
     #t = TextUserHandler()

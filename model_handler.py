@@ -12,11 +12,11 @@ class ModelHandler:
 
     def make_board_with_input(self):
         # initializes board according to the user's config
-        if(input("Display mid-game score? (Y/N): ") == "Y"):
+        if(input("Display mid-game score? (Y/N): ").upper() == "Y"):
             self.display_score = True
-        if(input("Display mid-game moves? (Y/N): ") == "Y"):
+        if(input("Display mid-game moves? (Y/N): ").upper() == "Y"):
             self.display_moves = True
-        if(input("Display mid-game turn? (Y/N): ") == "Y"):
+        if(input("Display mid-game turn? (Y/N): ").upper() == "Y"):
             self.display_turn = True
 
         if(input("Would you like the bot to run with default configs? (Y/N): ").upper() == "Y"):
@@ -33,6 +33,8 @@ class ModelHandler:
         
         turn = 0
         while self.logic.valid_moves_available():
+            print("") # new line
+            turn += 1
             # display info about the current status of the model
             if(self.display_turn):
                 print(f"Turn {turn}:")
@@ -41,8 +43,11 @@ class ModelHandler:
             if(self.display_moves):
                 print(f"Current Moves - {self.logic.count_tiles_with_valid_move()}")
             
+            print(self.logic)
+            
             # make a move based on the model
             move = RandomInputModel.get_move(self.logic)
+
             is_success = self.logic.try_move_num(move[0], move[1], move[2], move[3])
 
             if not is_success:
