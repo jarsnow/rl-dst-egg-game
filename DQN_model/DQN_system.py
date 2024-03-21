@@ -12,38 +12,43 @@ import torch.nn.functional as F
 
 from DQN_network import NeuralNetwork
 
-# named tuples allow for indexing by 
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
+class DQNSystem:
 
-class ReplayMemory(object):
+    def run():
+        
+        # named tuples allow for indexing by 
+        Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
+        class ReplayMemory(object):
 
-    def push(self, *args):
-        """Save a transition"""
-        self.memory.append(Transition(*args))
+            def __init__(self, capacity):
+                self.memory = deque([], maxlen=capacity)
 
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
+            def push(self, *args):
+                """Save a transition"""
+                self.memory.append(Transition(*args))
 
-    def __len__(self):
-        return len(self.memory)
+            def sample(self, batch_size):
+                return random.sample(self.memory, batch_size)
 
-# set up matplotlib
-is_ipython = 'inline' in matplotlib.get_backend()
-if is_ipython:
-    from IPython import display
-    
+            def __len__(self):
+                return len(self.memory)
 
-# turns on interactive mode for plotting software (what does that mean?)
-plt.ion()
+        # set up matplotlib
+        is_ipython = 'inline' in matplotlib.get_backend()
+        if is_ipython:
+            print("you need to install Ipython :(")
+            # from IPython import display
+            
 
-# cuda allows operations to run on the GPU
-device = (
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps"
-    if torch.backends.mps.is_available()
-    else "cpu"
-)
+        # turns on interactive mode for plotting software (what does that mean?)
+        plt.ion()
+
+        # cuda allows operations to run on the GPU
+        device = (
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
