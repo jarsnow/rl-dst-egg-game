@@ -10,6 +10,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+from board_env import BoardEnv
+
 # named tuples allow for indexing by either name like a dictionary, or by index like a list
 # should I need a terminal state to indicate whether or not the game is over?
 Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
@@ -52,7 +54,11 @@ class DeepQNetwork:
 class Agent():
 
     def __init__(self):
+        # indicates the amount of times an action has been selected
         self.steps_done = 0
+
+        # self.env = 
+
         # BATCH_SIZE is the number of transitions sampled from the ReplayMemory object.
         self.BATCH_SIZE = 128
 
@@ -90,21 +96,26 @@ class Agent():
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
         self.memory = ReplayMemory(10000)
 
-        def select_action(state):
-            #global steps_done
-            # the "global" keyword defines a variable to the global scope, but it is already defined? is this needed?
-            sample = random.random()
-            eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * \
-                math.exp(-1. * self.steps_done / self.EPS_DECAY) # the standalone backslash tells python to continue looking 
-            steps_done += 1
-            if sample > eps_threshold:
-                with torch.no_grad():
-                    # t.max(1) will return the largest column value of each row.
-                    # second column on max result is index of where max element was
-                    # found, so we pick action with the larger expected reward.
-                    return policy_net(state).max(1).indices.view(1, 1)
-            else:
-                return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
+    def select_action(self, observation):
+        self.steps_done += 1
+
+        sample = random.random() # random number from [0, 1)
+
+        # sets the udpated threshold for the epsilon greedy algorithm based on the agent's parameters
+        eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * math.exp(-1. * self.steps_done / self.EPS_DECAY)
+
+        if sample > eps_threshold:
+            
+            # disables gradient calculations
+            with torch.no_grad():
+                # t.max(1) will return the largest column value of each row.
+                # second column on max result is index of where max element was
+                # found, so we pick action with the larger expected reward.
+                return self.policy_net(observation).max(1).indices.view(1, 1)
+        else:
+            # env is the whole game environment (logic object)
+            # action_space is a subclass of gym's Spaces object.
+            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
 
 class DQNSystem:
 

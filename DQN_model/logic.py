@@ -1,8 +1,11 @@
-import random
+import gym
+from gym import spaces
+import pygame
+import numpy as np
 
 class Logic:
 
-    def __init__(self, width=4, height=4, num_min=1, num_max=20, num_goal=100):
+    def __init__(self, width=4, height=4, num_min=1, num_max=20, num_goal=100, random_seed=0):
         self.width = width
         self.height = height
         self.num_min = num_min
