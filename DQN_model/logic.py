@@ -4,7 +4,7 @@ import pygame
 import numpy as np
 
 class Logic:
-
+    
     def __init__(self, width=4, height=4, num_min=1, num_max=20, num_goal=100, random_seed=0):
         self.width = width
         self.height = height
@@ -26,7 +26,7 @@ class Logic:
         return new_board
     
     def new_num(self):
-        return random.randint(self.num_min, self.num_max)
+        return np.random.randint(self.num_min, self.num_max)
 
     def is_valid_move(self, from_row, from_col, to_row, to_col):
         # Checks for valid moves

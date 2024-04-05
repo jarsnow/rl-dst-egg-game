@@ -10,7 +10,9 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-from board_env import BoardEnv
+import numpy as np
+
+from logic_env import LogicEnv
 
 # named tuples allow for indexing by either name like a dictionary, or by index like a list
 # should I need a terminal state to indicate whether or not the game is over?
@@ -38,26 +40,48 @@ class DeepQNetwork:
     
     # currently has an arbitrarily defined depth of 3, width of 128
     # changing the depth and width could be something worth looking into
-    def __init__(self, n_observations, n_actions):
+    def __init__(self, n_observations, n_actions, lr):
         super(DeepQNetwork, self).__init__()
         self.layer1 = nn.Linear(n_observations, 128)
         self.layer2 = nn.Linear(128, 128)
         self.layer3 = nn.Linear(128, n_actions)
+
+        self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=lr, amsgrad=True)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
         x = nn.functional.relu(self.layer1(x))
         x = nn.functional.relu(self.layer2(x))
+        # the last layer is not activated, we want the raw output of the function before it is ReLU'd 
         return self.layer3(x)
     
 class Agent():
+
+    def run():
+        # set up matplotlib
+        is_ipython = 'inline' in matplotlib.get_backend()
+        if is_ipython:
+            print("you need to install Ipython :(")
+            # from IPython import display
+            
+        # turns on interactive mode for plotting software (what does that mean?)
+        plt.ion()
 
     def __init__(self):
         # indicates the amount of times an action has been selected
         self.steps_done = 0
 
         # self.env = 
+
+        self.device = (
+            # cuda allows operations to run on the GPU
+            "cuda"
+            if torch.cuda.is_available()
+            else "mps"
+            if torch.backends.mps.is_available()
+            else "cpu"
+        )
 
         # BATCH_SIZE is the number of transitions sampled from the ReplayMemory object.
         self.BATCH_SIZE = 128
@@ -89,53 +113,25 @@ class Agent():
         # Define the number of outputs
         self.n_actions = (self.GRID_LENGTH ** 2) * 2
 
-        self.policy_net = DeepQNetwork(self.n_observations, self.n_actions).to(self.device)
-        self.target_net = DeepQNetwork(self.n_observations, self.n_actions).to(self.device)
+        self.policy_net = DeepQNetwork(self.n_observations, self.n_actions, self.LR).to(self.device)
+        self.target_net = DeepQNetwork(self.n_observations, self.n_actions, self.LR).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
-
-        self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
         self.memory = ReplayMemory(10000)
 
     def select_action(self, observation):
-        self.steps_done += 1
-
-        sample = random.random() # random number from [0, 1)
-
-        # sets the udpated threshold for the epsilon greedy algorithm based on the agent's parameters
-        eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * math.exp(-1. * self.steps_done / self.EPS_DECAY)
-
-        if sample > eps_threshold:
-            
-            # disables gradient calculations
-            with torch.no_grad():
-                # t.max(1) will return the largest column value of each row.
-                # second column on max result is index of where max element was
-                # found, so we pick action with the larger expected reward.
-                return self.policy_net(observation).max(1).indices.view(1, 1)
+        epsilon = None
+        if np.random.random() > epsilon:
+            # exploit the currently best known solution
+            state = torch.tensor([observation]).to(self.device)
+            actions = self.policy_net.forward(state)
+            chosen_action = torch.argmax(actions).item()
         else:
-            # env is the whole game environment (logic object)
-            # action_space is a subclass of gym's Spaces object.
-            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
-
-class DQNSystem:
-
-    def run():
-        # set up matplotlib
-        is_ipython = 'inline' in matplotlib.get_backend()
-        if is_ipython:
-            print("you need to install Ipython :(")
-            # from IPython import display
-            
-        # turns on interactive mode for plotting software (what does that mean?)
-        plt.ion()
-
-        # cuda allows operations to run on the GPU
-        device = (
-            "cuda"
-            if torch.cuda.is_available()
-            else "mps"
-            if torch.backends.mps.is_available()
-            else "cpu"
-        )
+            # explore a random action
+            pass
+        self.steps_done += 1
+        
+    def store_transition(self, state, action, next_state, reward):
+        new_transition = Transition(state, action, next_state, reward)
+        self.memory.push(new_transition)
 
         
