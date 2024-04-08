@@ -9,10 +9,24 @@ The important attributes and functions that are needed by Gym are:
 
     - reset() : called on a logic obj to prepare the game for a new episode. Essentially just starts the game over again (reset, duh).
         - Needs to return a tuple: (observation, info). 
-            - Observation is the same format as observation_space
+            - Observation is the current values of the logic game
             - Info holds optional information that is meant for human digestion, and is not handled by Gym (to my knowledge).
 
     - step() : the main engine of the environment, which handles a single change in state of the game. 
+        - Changes the logic object for the rest of the episode
+        - Required parameters:
+            - action : is essentially the neural network's final answer to a given state.
+                - A way to map the neural network's actions to usable actions in the game needs to be defined somewhere in the LogicEnv class. (ex: a dictionary) 
+        - Needs to return a tuple that contains (observation, reward, terminated, info):
+            - The new observation after taking the step
+            - The reward given to the neural network for taking that action
+            - Whether or not the game is over (and therefore the episode should be over as well)
+            - Info holds optional information that is meant for human digestion, and is not handled by Gym (to my knowledge).
+
+    
+Less important attributes and functions are:
+
+    - close(): called to end any open resources that are used by the environment (ex: closing out of an open pygame window)
 
 '''
 
@@ -32,4 +46,42 @@ class LogicEnv(gym.Env):
 
         self.logic = Logic(width=width, height=height, num_min=num_min, num_max=num_max, num_goal=num_goal)
 
-        self._action
+        self.action_space = None
+        self.observation_space = None
+    
+    # assumes input is 0-4*len*width-1, or 0-63 for a normal 4x4 grid
+    def get_playable_move_from_input(self, num_input):
+        # IMPORTANT: this logic should be fixed later to accommodate non-4x4 grids!
+
+        # the input should be as follows:
+        # 0 : move tile at (0,0) left
+        # 1 : move tile at (0,0) right
+        # ... 
+        # 4 : move tile at (0,1) left 
+        # 18 : move tile at (1,0) up
+
+        dir = num_input % 4
+        tile_row = num_input // 16
+        tile_col = (num_input % 16) // 4 
+
+        to_row = tile_row
+        to_col = tile_col
+
+        match dir:
+            case 0:
+                # left
+                tile_col -= 1
+            case 1:
+                # right
+                tile_col += 1
+            case 2:
+                # up
+                tile_row -= 1
+            case 3:
+                # down
+                tile_row += 1
+
+        return tile_row, tile_col, to_row, to_col
+    
+    def reset():
+        pass
