@@ -3,6 +3,11 @@ from gym import spaces
 import pygame
 import numpy as np
 
+import os
+import sys
+
+sys.path.append(os.path.dirname(__file__))
+
 class Logic:
     
     def __init__(self, width=4, height=4, num_min=1, num_max=20, num_goal=100, random_seed=0):
@@ -31,7 +36,7 @@ class Logic:
     def is_valid_move(self, from_row, from_col, to_row, to_col):
         # Checks for valid moves
         try:
-            inside_bounds = from_row >= 0 and from_col >= 0 and to_row >= 0 or to_col >= 0 and from_row < self.height and to_row < self.width and from_col < self.width
+            inside_bounds = from_row >= 0 and from_col >= 0 and to_row >= 0 and to_col >= 0 and from_row < self.height and to_row < self.width and from_col < self.width
             not_at_goal = self.board[from_row][from_col] < self.num_goal and self.board[to_row][to_col] < self.num_goal
             inside_3x3 = int(abs(from_row - to_row)) <= 1 and int(abs(from_col - to_col)) <= 1
             not_diagonal = int(abs(from_row - to_row)) + int(abs(from_col - to_col)) != 2
@@ -97,18 +102,20 @@ class Logic:
         return (self.count_tiles_with_valid_move() > 0)
 
     def tile_has_valid_move(self, row_i, col_i):
+        # checks if a tile at a given r,c index as a move available
         return self.is_valid_move(row_i, col_i, row_i - 1, col_i) or self.is_valid_move(row_i,col_i, row_i + 1, col_i) or self.is_valid_move(row_i,col_i, row_i, col_i - 1) or self.is_valid_move(row_i,col_i, row_i, col_i + 1)
     
     def count_tiles_with_valid_move(self):
+        # returns the amount of remaining tiles that have at least one move available
         count = 0
         for row_i, row in enumerate(self.board):
             for col_i, val in enumerate(row):
                 if(self.tile_has_valid_move(row_i, col_i)):
-                    print(f"Valid move at {row_i}, {col_i}")
                     count += 1
         return count
     
     def get_valid_moves_as_tuples(self):
+        # returns a list of valid moves as a tuple of (from_row_i, from_col_i, to_row_i, to_col_i)
         valid_moves = []
         for from_row_i, from_row in enumerate(self.board):
             for from_col_i, val in enumerate(from_row):
@@ -118,3 +125,16 @@ class Logic:
                             valid_move = (from_row_i, from_col_i, to_row_i, to_col_i)
                             valid_moves.append(valid_move)
         return valid_moves
+    
+    def reset(self, seed):
+        # reset the board
+        self.board = self.new_board()
+        self.score = 0
+
+    def return_nums_by_row(self):
+        # get the board as a list
+        to_return = []
+        for col_i, row in enumerate(self.board):
+            for val in row[col_i]:
+                to_return.append(val)
+        return to_return

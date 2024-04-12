@@ -29,8 +29,7 @@ Less important attributes and functions are:
     - close(): called to end any open resources that are used by the environment (ex: closing out of an open pygame window)
 
 '''
-
-
+    
 from logic import Logic
 
 import gym
@@ -46,8 +45,11 @@ class LogicEnv(gym.Env):
 
         self.logic = Logic(width=width, height=height, num_min=num_min, num_max=num_max, num_goal=num_goal)
 
-        self.action_space = None
-        self.observation_space = None
+        # inputs are represented ((0 - 100), (0 - 100) .... ) for 16 total
+        self.observation_space = spaces.Box(low=1, high=100, shape=(4,4), dtype=np.integer)
+
+        # outputs are represented (0,1,2 ... 63)
+        self.action_space = spaces.Discrete(64)
     
     # assumes input is 0-4*len*width-1, or 0-63 for a normal 4x4 grid
     def get_playable_move_from_input(self, num_input):
@@ -70,18 +72,23 @@ class LogicEnv(gym.Env):
         match dir:
             case 0:
                 # left
-                tile_col -= 1
+                to_col -= 1
             case 1:
                 # right
-                tile_col += 1
+                to_col += 1
             case 2:
                 # up
-                tile_row -= 1
+                to_row -= 1
             case 3:
                 # down
-                tile_row += 1
+                to_row += 1
 
         return tile_row, tile_col, to_row, to_col
     
-    def reset():
+    def step():
         pass
+    
+    def reset(self, seed=None):
+        super().reset(seed=seed)
+
+        
