@@ -64,6 +64,23 @@ class Logic:
 
         self.apply_gravity_and_num()
         return True
+    
+    def move_num_with_reward(self, from_row, from_col, to_row, to_col):
+        if not self.is_valid_move(from_row, from_col, to_row, to_col):
+            raise ValueError("you CANNOT put an invalid move into this function.")
+        
+        self.board[to_row][to_col] += self.board[from_row][from_col]
+        self.board[from_row][from_col] = None
+
+        # add score
+        SCORE_GOAL_MULTIPLIER = 10
+        if(self.board[to_row][to_col] == self.num_goal):
+            self.score += SCORE_GOAL_MULTIPLIER * self.num_goal
+        else:
+            self.score += self.board[to_row][to_col]
+
+        self.apply_gravity_and_num()
+
         
     def apply_gravity_and_num(self):
         # moves all the tiles above the empty space down 1, then add a new num to the top of the board
@@ -131,10 +148,13 @@ class Logic:
         self.board = self.new_board()
         self.score = 0
 
-    def return_nums_by_row(self):
+    def get_nums_by_row(self):
         # get the board as a list
         to_return = []
         for col_i, row in enumerate(self.board):
             for val in row[col_i]:
                 to_return.append(val)
         return to_return
+    
+    def game_ended(self):
+        return self.count_tiles_with_valid_move() == 0

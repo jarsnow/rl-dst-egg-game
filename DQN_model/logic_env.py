@@ -85,10 +85,24 @@ class LogicEnv(gym.Env):
 
         return tile_row, tile_col, to_row, to_col
     
-    def step():
-        pass
+    def step(self, action):
+        # turn move from action into usable move
+        move = self.get_playable_move_from_input(action)
+
+        if(not self.logic.is_valid_move(*move)):
+           # what to do if the bot makes a bad move?
+           pass 
+
+        
+
+        # actually make the move on the board
+        reward = self.logic.try_move_num(*move)
+        game_ended = self.logic.game_ended()
+
+    def get_obs(self):
+        nums = self.logic.get_nums_by_row() 
     
     def reset(self, seed=None):
         super().reset(seed=seed)
+        self.logic.reset()
 
-        
