@@ -156,5 +156,28 @@ class Logic:
                 to_return.append(val)
         return to_return
     
+    # helper function for logic_env
+    # prioritizes having the 100's near the bottom if possible
+    # big bonus for having a full row
+    # DOES NOT SCALE WITH DIFFERENT SIZES!!!
+    def get_current_reward(self):
+        HEIGHT_OFFSET = 1
+        GOAL_REWARD = 100
+        ROW_REWARD = 1000
+
+        reward = 0
+        for row_i, row in enumerate(self.board):
+            full_row = True
+            for num in row:
+                if(num == self.num_goal):
+                    # has less rewards for physically higher 100's
+                    reward += (row_i + HEIGHT_OFFSET) * GOAL_REWARD
+                else:
+                    full_row = False
+            if(full_row):
+                reward += ROW_REWARD
+        
+        return reward
+        
     def game_ended(self):
         return self.count_tiles_with_valid_move() == 0

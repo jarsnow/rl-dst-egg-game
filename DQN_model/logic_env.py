@@ -86,19 +86,35 @@ class LogicEnv(gym.Env):
         return tile_row, tile_col, to_row, to_col
     
     def step(self, action):
+        NO_GOAL_PUNISHMENT = -5
         # turn move from action into usable move
+        reward_before = self.logic.get_current_reward()
+
         move = self.get_playable_move_from_input(action)
 
         if(not self.logic.is_valid_move(*move)):
            # what to do if the bot makes a bad move?
            pass 
 
-        
-
         # actually make the move on the board
-        reward = self.logic.try_move_num(*move)
+        self.logic.try_move_num(*move)
+
+        reward_after = self.logic.get_current_reward()
+
+        # reward is NO_GOAL_PUNISHMENT, unless it reaches a 100, or moves an existing 100 downwards.
+        reward = (reward_after - reward_before) if (reward_after - reward_before != 0) else NO_GOAL_PUNISHMENT
+
         game_ended = self.logic.game_ended()
 
+        observation = self.get_obs()
+
+        return observation, reward, game_ended, False, str(self.logic)
+
+    # might add pygame visualization later, but not now.
+    def close(self):
+        pass
+
+    # TODO: check if this has to be casted to a box
     def get_obs(self):
         nums = self.logic.get_nums_by_row() 
     

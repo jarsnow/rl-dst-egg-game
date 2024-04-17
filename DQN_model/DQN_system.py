@@ -118,20 +118,33 @@ class Agent():
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = ReplayMemory(10000)
 
+        self.env = LogicEnv()
+
     def select_action(self, observation):
         epsilon = None
-        if np.random.random() > epsilon:
+        if random.random() > epsilon:
             # exploit the currently best known solution
             state = torch.tensor([observation]).to(self.device)
             actions = self.policy_net.forward(state)
             chosen_action = torch.argmax(actions).item()
         else:
             # explore a random action
-            pass
+            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
+        
         self.steps_done += 1
         
     def store_transition(self, state, action, next_state, reward):
         new_transition = Transition(state, action, next_state, reward)
         self.memory.push(new_transition)
 
+    def optimize_model(self):
         
+        # do nothing if there aren't enough transition samples in the memory
+        if len(self.memory) < self.BATCH_SIZE:
+            return
+        
+        transitions = self.memory.sample(self.BATCH_SIZE)
+        # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
+        # detailed explanation). This converts batch-array of Transitions
+        # to Transition of batch-arrays.
+        batch = Transition(*zip(*transitions))
