@@ -143,7 +143,7 @@ class Logic:
                             valid_moves.append(valid_move)
         return valid_moves
     
-    def reset(self, seed):
+    def reset(self):
         # reset the board
         self.board = self.new_board()
         self.score = 0
@@ -151,8 +151,8 @@ class Logic:
     def get_nums_by_row(self):
         # get the board as a list
         to_return = []
-        for col_i, row in enumerate(self.board):
-            for val in row[col_i]:
+        for row in self.board:
+            for val in row:
                 to_return.append(val)
         return to_return
     

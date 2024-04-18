@@ -1,12 +1,12 @@
 # from collections import namedtuple
 
 from logic_env import LogicEnv
+from DQN_system import Agent
 
 def main():
     #print_moves()
-    env = LogicEnv()
-    print(env.logic)
-    pass
+    agent = Agent()
+    agent.run()
 
 def print_moves():
     for i in range(64):

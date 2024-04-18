@@ -17,7 +17,7 @@ The important attributes and functions that are needed by Gym are:
         - Required parameters:
             - action : is essentially the neural network's final answer to a given state.
                 - A way to map the neural network's actions to usable actions in the game needs to be defined somewhere in the LogicEnv class. (ex: a dictionary) 
-        - Needs to return a tuple that contains (observation, reward, terminated, info):
+        - Needs to return a tuple that contains (observation, reward, terminated, False, info):
             - The new observation after taking the step
             - The reward given to the neural network for taking that action
             - Whether or not the game is over (and therefore the episode should be over as well)
@@ -45,10 +45,10 @@ class LogicEnv(gym.Env):
 
         self.logic = Logic(width=width, height=height, num_min=num_min, num_max=num_max, num_goal=num_goal)
 
-        # inputs are represented ((0 - 100), (0 - 100) .... ) for 16 total
-        self.observation_space = spaces.Box(low=1, high=100, shape=(4,4), dtype=np.integer)
+        # outputs are represented ((0 - 100), (0 - 100) .... ) for 16 total
+        self.observation_space = spaces.Box(low=1, high=100, shape=(4,4), dtype=np.int32)
 
-        # outputs are represented (0,1,2 ... 63)
+        # inputs are represented (0,1,2 ... 63)
         self.action_space = spaces.Discrete(64)
     
     # assumes input is 0-4*len*width-1, or 0-63 for a normal 4x4 grid
@@ -105,20 +105,27 @@ class LogicEnv(gym.Env):
         reward = (reward_after - reward_before) if (reward_after - reward_before != 0) else NO_GOAL_PUNISHMENT
 
         game_ended = self.logic.game_ended()
-
         observation = self.get_obs()
+        info = self.get_info()
 
-        return observation, reward, game_ended, False, str(self.logic)
+        #
+        return observation, reward, game_ended, False, info
 
     # might add pygame visualization later, but not now.
     def close(self):
         pass
 
+    def get_info(self):
+        return str(self.logic)
+
     # TODO: check if this has to be casted to a box
+    # it does not I believe
     def get_obs(self):
-        nums = self.logic.get_nums_by_row() 
+        return self.logic.get_nums_by_row() 
     
     def reset(self, seed=None):
         super().reset(seed=seed)
         self.logic.reset()
+
+        return self.get_obs(), self.get_info()
 
