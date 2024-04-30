@@ -107,8 +107,7 @@ class LogicEnv(gym.Env):
         game_ended = self.logic.game_ended()
         observation = self.get_obs()
         info = self.get_info()
-
-        #
+    
         return observation, reward, game_ended, False, info
 
     # might add pygame visualization later, but not now.

@@ -111,7 +111,7 @@ class Agent():
         # Get the number of inputs
         self.n_observations = (self.GRID_LENGTH ** 2)
         # Define the number of outputs
-        self.n_actions = (self.GRID_LENGTH ** 2) * 2
+        self.n_actions = (self.GRID_LENGTH ** 2) * 4 # see logic_env for descriptions on how actions are worked
 
         self.policy_net = DeepQNetwork(self.n_observations, self.n_actions, self.LR).to(self.device)
         self.target_net = DeepQNetwork(self.n_observations, self.n_actions, self.LR).to(self.device)
@@ -129,19 +129,16 @@ class Agent():
 
         if random.random() > epsilon_limit:
             with torch.no_grad():
-                print(f'Step {self.steps_done}: exploiting best known action')
+                # exploit best known action
+
                 # t.max(1) will return the largest column value of each row.
                 # second column on max result is index of where max element was
                 # found, so we pick action with the larger expected reward.
                 selected_action = self.policy_net(observation).max(1).indices.view(1, 1)
                 return selected_action
         else:
-            print(f"Step {self.steps_done}: selecting random action")
+            # random action
             return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
-        
-    # def store_transition(self, state, action, next_state, reward):
-    #     new_transition = Transition(state, action, next_state, reward)
-    #     self.memory.push(new_transition)
 
     def optimize_model(self):
         
@@ -156,7 +153,7 @@ class Agent():
         batch = Transition(*zip(*transitions))
 
         # Compute a mask of non-final states and concatenate the batch elements
-    # (a final state would've been the one after which simulation ended)
+        # (a final state would've been the one after which simulation ended)
         non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
         non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
 
@@ -167,9 +164,18 @@ class Agent():
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
         # for each batch state according to policy_net
-        print(f"state batch: {state_batch}")
-        print(f"action_batch: {action_batch}")
+        # print("state batch:")
+        # for tensor in state_batch:
+        #     print(tensor)
+        # print(f"action_batch: {action_batch}")
+        # print(f"state batch dims: {state_batch.dim()}") # 2
+        # print(f"action batch dims: {action_batch.dim()}") # 2
+        # print(f"dim 0 size, state: {state_batch.size(0)}") # 128
+        # print(f"dim 0 size, action: {action_batch.size(0)}") # 128
+        # print(f"dim 1 size, state: {state_batch.size(1)}")
+        # print(f"dim 1 size, action: {action_batch.size(1)}")
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
+        
 
         # Compute V(s_{t+1}) for all next states.
         # Expected values of actions for non_final_next_states are computed based
@@ -232,7 +238,6 @@ class Agent():
             for t in count():
                 action = self.select_action(state)
                 observation, reward, terminated, truncated, info = self.env.step(action.item())
-                print(f"Game state: \n{info}")
                 reward = torch.tensor([reward], device=self.device)
                 done = terminated or truncated
 
