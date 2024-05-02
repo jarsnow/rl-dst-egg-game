@@ -31,13 +31,17 @@ class ModelHandler:
         
     def make_board(self):
         return Logic()
+    
+    def reset(self, seed=None):
+        self.logic.reset(seed)
         
     def run(self):
         # returns the final score of the model
         
         turn = 0
         while True:
-            print("") # new line
+            if(self.display_turn):
+                print("") 
             turn += 1
             # display info about the current status of the model
             if(self.display_turn):

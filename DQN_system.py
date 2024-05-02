@@ -120,7 +120,7 @@ class Agent():
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
 
         self.memory = ReplayMemory(10000)
-        self.episode_durations = []
+        self.episode_scores = []
         self.env = LogicEnv()
 
     def select_action(self, observation):
@@ -202,18 +202,18 @@ class Agent():
 
     def plot_durations(self, show_result=False):
         plt.figure(1)
-        durations_t = torch.tensor(self.episode_durations, dtype=torch.float)
+        scores_t = torch.tensor(self.episode_scores, dtype=torch.float)
         if show_result:
             plt.title('Result')
         else:
             plt.clf()
             plt.title('Training...')
         plt.xlabel('Episode')
-        plt.ylabel('Duration')
-        plt.plot(durations_t.numpy())
+        plt.ylabel('Score')
+        plt.plot(scores_t.numpy())
         # Take 100 episode averages and plot them too
-        if len(durations_t) >= 100:
-            means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
+        if len(scores_t) >= 100:
+            means = scores_t.unfold(0, 100, 1).mean(1).view(-1)
             means = torch.cat((torch.zeros(99), means))
             plt.plot(means.numpy())
 
@@ -264,7 +264,7 @@ class Agent():
                 self.target_net.load_state_dict(target_net_state_dict)
 
                 if done:
-                    self.episode_durations.append(t + 1)
+                    self.episode_scores.append(info)
                     self.plot_durations()
                     break
 

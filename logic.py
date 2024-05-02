@@ -3,11 +3,6 @@ from gym import spaces
 import pygame
 import numpy as np
 
-import os
-import sys
-
-sys.path.append(os.path.dirname(__file__))
-
 class Logic:
     
     def __init__(self, width=4, height=4, num_min=1, num_max=20, num_goal=100, random_seed=0):
@@ -21,7 +16,6 @@ class Logic:
         
     def new_board(self, width=4, height=4):
         # returns a 2d matrix filled with random starting nums
-
         new_board = []
         for i in range(height):
             new_row = []
@@ -143,10 +137,11 @@ class Logic:
                             valid_moves.append(valid_move)
         return valid_moves
     
-    def reset(self):
+    def reset(self, seed=None):
         # reset the board
         self.board = self.new_board()
         self.score = 0
+        np.random.seed = seed
 
     def get_nums_by_row(self):
         # get the board as a list
