@@ -8,7 +8,8 @@ from model_handler import ModelHandler
 
 def main():
     #print_moves()
-    play_random(100)
+    #play_random(100)
+    play_agent()
 
 def print_moves():
     for i in range(64):

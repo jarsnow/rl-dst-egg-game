@@ -119,7 +119,7 @@ class Agent():
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
 
-        self.memory = ReplayMemory(10000)
+        self.memory = ReplayMemory(10000) # keep the last 10000 transitions for random sampling later
         self.episode_scores = []
         self.env = LogicEnv()
 
@@ -143,6 +143,7 @@ class Agent():
     def optimize_model(self):
         
         # do nothing if there aren't enough transition samples in the memory
+        print(f"current mem length: {len(self.memory)}")
         if len(self.memory) < self.BATCH_SIZE:
             return
         
@@ -164,18 +165,7 @@ class Agent():
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
         # for each batch state according to policy_net
-        # print("state batch:")
-        # for tensor in state_batch:
-        #     print(tensor)
-        # print(f"action_batch: {action_batch}")
-        # print(f"state batch dims: {state_batch.dim()}") # 2
-        # print(f"action batch dims: {action_batch.dim()}") # 2
-        # print(f"dim 0 size, state: {state_batch.size(0)}") # 128
-        # print(f"dim 0 size, action: {action_batch.size(0)}") # 128
-        # print(f"dim 1 size, state: {state_batch.size(1)}")
-        # print(f"dim 1 size, action: {action_batch.size(1)}")
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        
 
         # Compute V(s_{t+1}) for all next states.
         # Expected values of actions for non_final_next_states are computed based
@@ -200,7 +190,7 @@ class Agent():
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-    def plot_durations(self, show_result=False):
+    def plot_scores(self, show_result=False):
         plt.figure(1)
         scores_t = torch.tensor(self.episode_scores, dtype=torch.float)
         if show_result:
@@ -265,10 +255,10 @@ class Agent():
 
                 if done:
                     self.episode_scores.append(info)
-                    self.plot_durations()
+                    self.plot_scores()
                     break
 
         print('Complete')
-        self.plot_durations(show_result=True)
+        self.plot_scores(show_result=True)
         plt.ioff()
         plt.show()
