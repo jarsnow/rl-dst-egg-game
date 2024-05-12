@@ -61,7 +61,7 @@ class LogicEnv(gym.Env):
         # ... 
         # 4 : move tile at (0,1) left 
         # 18 : move tile at (1,0) up
-
+        num_input = int(num_input)
         dir = num_input % 4
         tile_row = num_input // 16
         tile_col = (num_input % 16) // 4 
@@ -91,9 +91,10 @@ class LogicEnv(gym.Env):
         reward_before = self.logic.get_current_reward()
 
         move = self.get_playable_move_from_input(action)
-
+        
         if(not self.logic.is_valid_move(*move)):
            # what to do if the bot makes a bad move?
+           print(f"bad move made, input: {action}")
            pass 
 
         # actually make the move on the board
@@ -115,10 +116,15 @@ class LogicEnv(gym.Env):
         pass
 
     def get_info(self):
-        return self.logic.score
+        valid_moves = self.get_valid_moves()
+        return self.logic.score, 
 
-    # TODO: check if this has to be casted to a box
-    # it does not I believe
+    def get_valid_moves(self):
+        moves = list(range(64))
+        valid_moves = [move for move in moves if self.logic.is_valid_move(*self.get_playable_move_from_input(move))]
+        return valid_moves
+
+    # does not have to be casted to box
     def get_obs(self):
         return self.logic.get_nums_by_row() 
     

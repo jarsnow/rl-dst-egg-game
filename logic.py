@@ -49,10 +49,15 @@ class Logic:
         self.board[to_row][to_col] += self.board[from_row][from_col]
         self.board[from_row][from_col] = None
 
-        # add score
-        SCORE_GOAL_MULTIPLIER = 10
+        # add score:
+        # if the total is equal to goal, add 2500 to the score
+        #   after looking at actual gameplay, this number is decayed based on how long since either the game started,
+        #   or the last time you made a sum equal to the number goal (egg in the minigame)
+        # if the total isn't at the goal, add the newly created number to the score
+        #   accurate to how this is done in the minigame
+        SCORE_GOAL_REWARD = 2500
         if(self.board[to_row][to_col] == self.num_goal):
-            self.score += SCORE_GOAL_MULTIPLIER * self.num_goal
+            self.score += SCORE_GOAL_REWARD
         else:
             self.score += self.board[to_row][to_col]
 

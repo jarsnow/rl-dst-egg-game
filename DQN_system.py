@@ -130,20 +130,27 @@ class Agent():
         if random.random() > epsilon_limit:
             with torch.no_grad():
                 # exploit best known action
+                # get the index of the maximum value, excluding invalid moves
+                decision_outputs = self.policy_net(observation).tolist()[0]
+                valid_moves = self.env.get_valid_moves()
+                max_i = valid_moves[0]
+                max_val = decision_outputs[max_i]
 
-                # t.max(1) will return the largest column value of each row.
-                # second column on max result is index of where max element was
-                # found, so we pick action with the larger expected reward.
-                selected_action = self.policy_net(observation).max(1).indices.view(1, 1)
-                return selected_action
+                for i, val in enumerate(decision_outputs):
+                    if val > max_val and (i in valid_moves):
+                        max_i = i
+                        max_val = val
+
+                return torch.tensor([[max_i]])
         else:
             # random action
-            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
+            valid_moves = self.env.get_valid_moves()
+            random_move = torch.tensor([[random.choice(valid_moves)]])
+            return torch.tensor([[random_move]], device=self.device, dtype=torch.long)
 
     def optimize_model(self):
         
         # do nothing if there aren't enough transition samples in the memory
-        print(f"current mem length: {len(self.memory)}")
         if len(self.memory) < self.BATCH_SIZE:
             return
         
@@ -201,11 +208,13 @@ class Agent():
         plt.xlabel('Episode')
         plt.ylabel('Score')
         plt.plot(scores_t.numpy())
+
+        # not workign
         # Take 100 episode averages and plot them too
-        if len(scores_t) >= 100:
-            means = scores_t.unfold(0, 100, 1).mean(1).view(-1)
-            means = torch.cat((torch.zeros(99), means))
-            plt.plot(means.numpy())
+        # if len(scores_t) >= 100:
+        #     means = scores_t.unfold(0, 100, 1).mean(1).view(-1)
+        #     means = torch.cat((torch.zeros(99), means))
+        #     plt.plot(means.numpy())
 
         plt.pause(0.001)  # pause a bit so that plots are updated
         if self.is_ipython:
@@ -216,10 +225,11 @@ class Agent():
                 display.display(plt.gcf())
 
     def run_models(self):
+        # change these numbers to whatever value you want, might make it easier to do so later
         if torch.cuda.is_available():
-            num_episodes = 600
+            num_episodes = 90000
         else:
-            num_episodes = 50
+            num_episodes = 90000
 
         for i_episode in range(num_episodes):
             # Initialize the environment and get its state
@@ -227,7 +237,7 @@ class Agent():
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             for t in count():
                 action = self.select_action(state)
-                observation, reward, terminated, truncated, info = self.env.step(action.item())
+                observation, reward, terminated, truncated, info = self.env.step(action)
                 reward = torch.tensor([reward], device=self.device)
                 done = terminated or truncated
 
@@ -262,3 +272,6 @@ class Agent():
         self.plot_scores(show_result=True)
         plt.ioff()
         plt.show()
+
+    def save_model(self):
+        pass
