@@ -13,6 +13,9 @@ class Logic:
         self.num_goal = num_goal
         self.board = self.new_board(width=width, height=height)
         self.score = 0
+        self.is_recording = False
+        self.history_file_name = None
+        self.file_obj = None
         
     def new_board(self, width=4, height=4):
         # returns a 2d matrix filled with random starting nums
@@ -62,23 +65,27 @@ class Logic:
             self.score += self.board[to_row][to_col]
 
         self.apply_gravity_and_num()
+
+        if(self.is_recording):
+            self.write_curr_state_to_file()
+
         return True
     
-    def move_num_with_reward(self, from_row, from_col, to_row, to_col):
-        if not self.is_valid_move(from_row, from_col, to_row, to_col):
-            raise ValueError("you CANNOT put an invalid move into this function.")
+    # def move_num_with_reward(self, from_row, from_col, to_row, to_col):
+    #     if not self.is_valid_move(from_row, from_col, to_row, to_col):
+    #         raise ValueError("you CANNOT put an invalid move into this function.")
         
-        self.board[to_row][to_col] += self.board[from_row][from_col]
-        self.board[from_row][from_col] = None
+    #     self.board[to_row][to_col] += self.board[from_row][from_col]
+    #     self.board[from_row][from_col] = None
 
-        # add score
-        SCORE_GOAL_MULTIPLIER = 10
-        if(self.board[to_row][to_col] == self.num_goal):
-            self.score += SCORE_GOAL_MULTIPLIER * self.num_goal
-        else:
-            self.score += self.board[to_row][to_col]
+    #     # add score
+    #     SCORE_GOAL_MULTIPLIER = 10
+    #     if(self.board[to_row][to_col] == self.num_goal):
+    #         self.score += SCORE_GOAL_MULTIPLIER * self.num_goal
+    #     else:
+    #         self.score += self.board[to_row][to_col]
 
-        self.apply_gravity_and_num()
+    #     self.apply_gravity_and_num()
 
         
     def apply_gravity_and_num(self):
@@ -142,11 +149,22 @@ class Logic:
                             valid_moves.append(valid_move)
         return valid_moves
     
-    def reset(self, seed=None):
+    def reset(self, seed=None, record=False, file_name=None):
         # reset the board
         self.board = self.new_board()
         self.score = 0
-        np.random.seed = seed
+
+        # close file
+        if(self.is_recording):
+            self.is_recording = False
+            self.close_history_file()
+
+        if(record):
+            self.is_recording = True
+            self.history_file_name = file_name
+            self.open_file_obj()
+            self.write_curr_state_to_file()
+
 
     def get_nums_by_row(self):
         # get the board as a list
@@ -181,3 +199,18 @@ class Logic:
         
     def game_ended(self):
         return self.count_tiles_with_valid_move() == 0
+    
+    def write_curr_state_to_file(self):
+        if(self.file_obj is None):
+            raise ValueError("no file obj")
+        self.file_obj.write(str(self) + "\n")
+        return
+    
+    def open_file_obj(self):
+        self.file_obj = open(f"{self.history_file_name}.txt", "w")
+
+    def close_history_file(self):
+        if(self.file_obj is None):
+            raise ValueError("no file obj")
+        
+        self.file_obj.close()

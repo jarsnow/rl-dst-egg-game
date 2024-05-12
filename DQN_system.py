@@ -233,7 +233,10 @@ class Agent():
 
         for i_episode in range(num_episodes):
             # Initialize the environment and get its state
-            state, info = self.env.reset()
+            recording = False
+            file_name = None
+            
+            state, info = self.env.reset(record=recording, file_name=file_name)
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             for t in count():
                 action = self.select_action(state)

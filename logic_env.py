@@ -128,9 +128,9 @@ class LogicEnv(gym.Env):
     def get_obs(self):
         return self.logic.get_nums_by_row() 
     
-    def reset(self, seed=None):
+    def reset(self, seed=None, record=False, file_name=None):
         super().reset(seed=seed)
-        self.logic.reset()
+        self.logic.reset(record=record, file_name=file_name)
 
         return self.get_obs(), self.get_info()
 
