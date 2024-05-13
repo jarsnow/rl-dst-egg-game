@@ -89,23 +89,23 @@ class Agent():
         # GAMMA is the discount factor.
         # A low value means the system prioritizes immediate rewards,
         # a higher value proritizes future reward it can be confident in earning.
-        self.GAMMA = 0.99
+        self.GAMMA = 0.98
 
         # The algorithm used is the epsilon-greedy algorithm.
         # When the epsilon value is higher, the system is more likely to choose actions at random.
         # When it is lower, the system is more likely to choose actions based off the model.
 
         # EPS_START is the starting value of epsilon
-        self.EPS_START = 0.9
+        self.EPS_START = 0.95
         # EPS_END is the final value of epsilon
         self.EPS_END = 0.05
         # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
-        self.EPS_DECAY = 1000
+        self.EPS_DECAY = 2000
 
         # TAU is the update rate of the target network
         self.TAU = 0.005
         # LR is the learning rate of the ``AdamW`` optimizer
-        self.LR = 1e-4
+        self.LR = 3e-4
 
         self.GRID_LENGTH = 4
         # Get the number of inputs
@@ -209,13 +209,6 @@ class Agent():
         plt.ylabel('Score')
         plt.plot(scores_t.numpy())
 
-        # not workign
-        # Take 100 episode averages and plot them too
-        # if len(scores_t) >= 100:
-        #     means = scores_t.unfold(0, 100, 1).mean(1).view(-1)
-        #     means = torch.cat((torch.zeros(99), means))
-        #     plt.plot(means.numpy())
-
         plt.pause(0.001)  # pause a bit so that plots are updated
         if self.is_ipython:
             if not show_result:
@@ -235,7 +228,7 @@ class Agent():
             # Initialize the environment and get its state
             recording = False
             file_name = None
-            
+
             state, info = self.env.reset(record=recording, file_name=file_name)
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             for t in count():

@@ -117,7 +117,9 @@ class LogicEnv(gym.Env):
 
     def get_info(self):
         valid_moves = self.get_valid_moves()
-        return self.logic.score, 
+        # testing reward value for now
+        return self.logic.get_current_reward()
+        #return self.logic.score
 
     def get_valid_moves(self):
         moves = list(range(64))
