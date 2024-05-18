@@ -40,13 +40,13 @@ class ReplayMemory(object):
 
 class DeepQNetwork(nn.Module):
     
-    # currently has an arbitrarily defined depth of 3, width of 128
+    # currently has an arbitrarily defined depth of 3, width of 64
     # changing the depth and width could be something worth looking into
     def __init__(self, n_observations, n_actions, lr):
         super(DeepQNetwork, self).__init__()
-        self.layer1 = nn.Linear(n_observations, 128)
-        self.layer2 = nn.Linear(128, 128)
-        self.layer3 = nn.Linear(128, n_actions)
+        self.layer1 = nn.Linear(n_observations, 64)
+        self.layer2 = nn.Linear(64, 64)
+        self.layer3 = nn.Linear(64, n_actions)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
@@ -261,13 +261,22 @@ class Agent():
 
                 if done:
                     self.episode_scores.append(info)
-                    self.plot_scores()
+                    #self.plot_scores()
+                    self.print_running_avg(num=250)
+                    self.print_running_avg(num=1000)
                     break
 
         print('Complete')
         self.plot_scores(show_result=True)
         plt.ioff()
         plt.show()
+
+    def print_running_avg(self, num=100):
+        if len(self.episode_scores) % num == 0 and len(self.episode_scores) != 0:
+            window = self.episode_scores[len(self.episode_scores) - num : len(self.episode_scores)]
+            running_avg = sum(window) // num
+            print(f"Average of {len(self.episode_scores) - num} to {len(self.episode_scores)}: {running_avg}")
+            
 
     def save_model(self):
         pass

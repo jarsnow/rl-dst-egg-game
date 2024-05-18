@@ -1,15 +1,13 @@
 # from collections import namedtuple
 import numpy
 from logic_env import LogicEnv
-from DQN_system import Agent
-from itertools import count
-
 from model_handler import ModelHandler
 
 def main():
     #print_moves()
     #play_random(100)
     play_agent()
+    #play_one_random_check_reward_state()
 
 def print_moves():
     for i in range(64):
@@ -29,7 +27,12 @@ def play_random(num):
     
     print(f"avg over {num}: {sum(scores) / len(scores)}")
 
+def play_one_random_check_reward_state():
+    mh = ModelHandler("random")
+    mh.run()
+
 def play_agent():
+    from DQN_system import Agent
     agent = Agent()
     agent.run()
 

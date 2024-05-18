@@ -65,6 +65,10 @@ class ModelHandler:
 
             if not is_success:
                 raise ValueError("something went wrong :(")
+            
+            # used to verify reward state
+            print(self.logic)
+            print(f"Reward state: {self.logic.get_current_reward()}")
 
         return self.logic.score
 

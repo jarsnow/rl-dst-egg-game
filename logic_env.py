@@ -86,7 +86,7 @@ class LogicEnv(gym.Env):
         return tile_row, tile_col, to_row, to_col
     
     def step(self, action):
-        NO_GOAL_PUNISHMENT = -5
+        NO_GOAL_PUNISHMENT = -20
         # turn move from action into usable move
         reward_before = self.logic.get_current_reward()
 
