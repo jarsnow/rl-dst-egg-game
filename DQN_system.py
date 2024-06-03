@@ -119,6 +119,8 @@ class Agent():
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
 
+        #self.load_models()
+
         self.memory = ReplayMemory(10000) # keep the last 10000 transitions for random sampling later
         self.episode_scores = []
         self.env = LogicEnv()
@@ -219,12 +221,9 @@ class Agent():
 
     def run_models(self):
         # change these numbers to whatever value you want, might make it easier to do so later
-        if torch.cuda.is_available():
-            num_episodes = 90000
-        else:
-            num_episodes = 90000
+        MAX_EPISODES = 1000000
 
-        for i_episode in range(num_episodes):
+        for i_episode in range(MAX_EPISODES):
             # Initialize the environment and get its state
             recording = False
             file_name = None
@@ -262,8 +261,11 @@ class Agent():
                 if done:
                     self.episode_scores.append(info)
                     #self.plot_scores()
-                    self.print_running_avg(num=250)
-                    self.print_running_avg(num=1000)
+                    if(i_episode == 7000):
+                        self.save_models()
+                        print("Models saved")
+                    self.print_running_avg(250)
+                    self.print_running_avg(1000)
                     break
 
         print('Complete')
@@ -277,6 +279,23 @@ class Agent():
             running_avg = sum(window) // num
             print(f"Average of {len(self.episode_scores) - num} to {len(self.episode_scores)}: {running_avg}")
             
+    # saves the policy net, target net, and optimizer to disk
+    def save_models(self, path="models.pt"):
+        model_dicts = {}
+        model_dicts["policy"] = self.policy_net.state_dict()
+        model_dicts["target"] = self.target_net.state_dict()
+        model_dicts["optimizer"] = self.optimizer.state_dict()
+        torch.save(model_dicts, path)
 
-    def save_model(self):
-        pass
+        with open("extra_model_info.txt", "w") as f:
+            f.write(str(self.steps_done))
+
+    def load_models(self, path="models.pt"):
+        checkpoint = torch.load(path)
+        self.policy_net.load_state_dict(checkpoint["policy"])
+        self.target_net.load_state_dict(checkpoint["target"])
+        self.optimizer.load_state_dict(checkpoint["optimizer"])
+
+        with open("extra_model_info.txt", "r") as f:
+            num = f.read().strip()
+            self.steps_done = int(num)
