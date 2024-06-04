@@ -261,11 +261,11 @@ class Agent():
                 if done:
                     self.episode_scores.append(info)
                     #self.plot_scores()
-                    if(i_episode == 7000):
+                    if(i_episode == 500000):
                         self.save_models()
                         print("Models saved")
-                    self.print_running_avg(250)
                     self.print_running_avg(1000)
+                    self.print_running_avg(10000)
                     break
 
         print('Complete')
