@@ -207,7 +207,7 @@ class Logic:
         return
     
     def open_file_obj(self):
-        self.file_obj = open(f"{self.history_file_name}.txt", "w")
+        self.file_obj = open(f".\game_outputs\{self.history_file_name}.txt", "w")
 
     def close_history_file(self):
         if(self.file_obj is None):

@@ -14,7 +14,7 @@ import numpy as np
 
 from logic_env import LogicEnv
 
-print("finished importing")
+print("Importing Finished")
 
 # named tuples allow for indexing by either name like a dictionary, or by index like a list
 # should I need a terminal state to indicate whether or not the game is over?
@@ -65,13 +65,12 @@ class Agent():
         # turns on interactive mode for plotting software (what does that mean?)
         plt.ion()
 
+        print("Now Running...")
         self.run_models()
 
     def __init__(self):
         # indicates the amount of times an action has been selected
         self.steps_done = 0
-
-        # self.env = 
 
         self.device = (
             # cuda allows operations to run on the GPU
@@ -81,6 +80,9 @@ class Agent():
             if torch.backends.mps.is_available()
             else "cpu"
         )
+
+        if(self.device == "cuda"):
+            torch.set_default_device('cuda')
 
         self.is_ipython = False
         # BATCH_SIZE is the number of transitions sampled from the ReplayMemory object.
@@ -115,6 +117,7 @@ class Agent():
 
         self.policy_net = DeepQNetwork(self.n_observations, self.n_actions, self.LR).to(self.device)
         self.target_net = DeepQNetwork(self.n_observations, self.n_actions, self.LR).to(self.device)
+
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
@@ -221,12 +224,16 @@ class Agent():
 
     def run_models(self):
         # change these numbers to whatever value you want, might make it easier to do so later
-        MAX_EPISODES = 1000000
+        MAX_EPISODES = 10000000
 
         for i_episode in range(MAX_EPISODES):
             # Initialize the environment and get its state
             recording = False
             file_name = None
+
+            if(i_episode % 10000 == 0):
+                recording = True
+                file_name = f"game_{i_episode}"
 
             state, info = self.env.reset(record=recording, file_name=file_name)
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
