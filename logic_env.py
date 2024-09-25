@@ -34,7 +34,6 @@ from logic import Logic
 
 import gym
 from gym import spaces
-import pygame
 import numpy as np
 
 class LogicEnv(gym.Env):

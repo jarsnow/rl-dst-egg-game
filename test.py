@@ -1,5 +1,4 @@
 # from collections import namedtuple
-import numpy
 from logic_env import LogicEnv
 from model_handler import ModelHandler
 
