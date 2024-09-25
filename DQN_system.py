@@ -285,7 +285,7 @@ class Agent():
         if len(self.episode_scores) % num == 0 and len(self.episode_scores) != 0:
             window = self.episode_scores[len(self.episode_scores) - num : len(self.episode_scores)]
             running_avg = sum(window) // num
-            print(f"Average of {len(self.episode_scores) - num} to {len(self.episode_scores)}: {running_avg}")
+            print(f"Average reward of {len(self.episode_scores) - num} to {len(self.episode_scores)}: {running_avg}")
             
     # saves the policy net, target net, and optimizer to disk
     def save_models(self, path="models.pt"):
