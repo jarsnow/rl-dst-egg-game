@@ -239,6 +239,7 @@ class Agent():
                 if terminated:
                     next_state = None
                 else:
+                    
                     next_state = torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
 
                 # Store the transition in memory
@@ -261,11 +262,11 @@ class Agent():
                 if done:
                     self.episode_scores.append(info)
                     #self.plot_scores()
-                    if(i_episode == 7000):
-                        self.save_models()
-                        print("Models saved")
-                    self.print_running_avg(250)
-                    self.print_running_avg(1000)
+                    # if(i_episode == 7000):
+                    #     self.save_models()
+                    #     print("Models saved")
+                    self.print_running_avg(10)
+                    self.print_running_avg(100)
                     break
 
         print('Complete')
